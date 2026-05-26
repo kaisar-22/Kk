@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>⚡ KAZZ GAME ⚡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a2e;
+            min-height: 100vh;
+            transition: background 0.2s;
+        }
+        body.light {
+            background: #e2e8f0;
+        }
+        .app {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e1e2e, #2c2c3e);
+            border-radius: 40px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,204,0,0.3);
+        }
+        body.light .header {
+            background: linear-gradient(135deg, #e0e4e9, #cbd5e1);
+        }
+        .logo h1 {
+            color: #ffcc00;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        .logo p {
+            color: #94a3b8;
+            font-size: 0.7rem;
+        }
+        /* GALERI FOTO (DAPAT DIGESER & DIGANTI DARI GALERI) */
+        .gallery-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 30px;
+            margin-top: 12px;
+            background: #1e293b;
+            padding: 8px;
+        }
+        .gallery-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding: 8px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .gallery-slider::-webkit-scrollbar {
+            height: 6px;
+        }
+        .gallery-slider::-webkit-scrollbar-track {
+            background: #2c2c3e;
+            border-radius: 10px;
+        }
+        .gallery-slider::-webkit-scrollbar-thumb {
+            background: #ffcc00;
+            border-radius: 10px;
+        }
+        .gallery-item {
+            flex: 0 0 90%;
+            scroll-snap-align: start;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #0f172a;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            cursor: pointer;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            text-align: center;
+            padding: 6px;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        .gallery-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gallery-btn-left {
+            left: 16px;
+        }
+        .gallery-btn-right {
+            right: 16px;
+        }
+        .menu-btn {
+            background: #2c2c3e;
+            border: 1px solid rgba(255,215,0,0.5);
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 12px;
+        }
+        .menu-btn:active { transform: scale(0.95); background: #ffcc00; color: black; }
+        body.light .menu-btn { background: #cbd5e1; color: black; }
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100%;
+            background: #1c1c2e;
+            transition: right 0.3s ease;
+            z-index: 100;
+            padding: 80px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-left: 1px solid rgba(255,215,0,0.3);
+        }
+        body.light .sidebar-menu { background: #f1f5f9; }
+        .sidebar-menu.open { right: 0; }
+        .sidebar-menu button {
+            background: #2c2c3e;
+            border: 1px solid rgba(255,204,0,0.3);
+            padding: 14px;
+            border-radius: 50px;
+            color: #ffcc00;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        body.light .sidebar-menu button { background: #cbd5e1; color: #0f172a; }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 99;
+            display: none;
+        }
+        .category-title {
+            color: #ffcc00;
+            font-size: 1.3rem;
+            margin: 20px 0 10px 0;
+            padding-left: 10px;
+            border-left: 4px solid #ffcc00;
+        }
+        .game-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+        .game-item {
+            background: linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98));
+            border-radius: 40px;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid rgba(255,204,0,0.3);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+        }
+        body.light .game-item { background: rgba(255,255,255,0.9); }
+        .game-item:active { transform: scale(0.98); }
+        .game-name { font-size: 1.2rem; font-weight: bold; color: #ffcc00; }
+        .game-icon { font-size: 1.8rem; }
+        .game-container {
+            background: linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98));
+            border-radius: 40px;
+            padding: 24px;
+            border: 1px solid rgba(255,204,0,0.3);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+        .game-title {
+            color: #ffcc00;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            background: #0a7cff;
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            flex: 1;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background: #475569;
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            flex: 1;
+            cursor: pointer;
+        }
+        .game-status {
+            background: rgba(0,0,0,0.3);
+            border-radius: 30px;
+            padding: 10px;
+            text-align: center;
+            margin: 10px 0;
+            color: #94a3b8;
+        }
+        /* Memory Game (Tebak Buah) */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .memory-card {
+            aspect-ratio: 1;
+            background: #2c2c3e;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .memory-card.flipped, .memory-card.matched {
+            background: #0a7cff;
+        }
+        /* Catur */
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            background: #f0d9b5;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+        .chess-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+        }
+        .chess-cell.dark { background: #b58863; }
+        .chess-cell.light { background: #f0d9b5; }
+        .chess-cell.selected { background: #7b61ff; }
+        .chess-cell.valid-move { background: #4caf50; }
+        /* Game Lain */
+        .number-input {
+            background: #1e293b;
+            border: 1px solid #ffcc00;
+            padding: 12px;
+            border-radius: 40px;
+            color: white;
+            text-align: center;
+            width: 100%;
+        }
+        .scramble-word {
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            text-align: center;
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 20px;
+            color: #ffcc00;
+        }
+        .maze-scroll { overflow-x: auto; overflow-y: auto; max-height: 70vh; border-radius: 20px; }
+        .maze-grid { display: inline-grid; background: #1e293b; border-radius: 16px; border: 2px solid #ffcc00; }
+        .maze-row { display: flex; }
+        .maze-cell { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .maze-wall { background: #0f172a; }
+        .maze-path { background: #1e293b; }
+        .maze-player { background: #0a7cff; border-radius: 50%; color: white; }
+        .maze-finish { background: #22c55e; border-radius: 50%; color: white; }
+        .flag-img { width: 100%; max-width: 200px; border-radius: 16px; margin: 10px auto; display: block; }
+        .timer-text { font-size: 1.8rem; font-weight: bold; color: #ffcc00; text-align: center; margin: 10px 0; }
+        .flappy-canvas { background: #1e293b; border-radius: 20px; display: block; margin: 0 auto; cursor: pointer; }
+        .puzzle-grid { display: grid; gap: 2px; background: #1e293b; padding: 10px; border-radius: 20px; justify-content: center; }
+        .puzzle-cell { background: #2c2c3e; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; aspect-ratio: 1; }
+        .color-box { width: 100%; height: 100px; border-radius: 20px; margin: 10px 0; }
+        @media (max-width: 700px) {
+            .app { padding: 12px; }
+            .maze-cell { width: 28px; height: 28px; }
+            .chess-cell { font-size: 1.2rem; }
+            .gallery-item { flex: 0 0 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="app" id="app">
+    <div class="header">
+        <div class="logo">
+            <h1>⚡ KAZZ GAME ⚡</h1>
+            <p>Game Seru | 1P vs AI & 2P</p>
+        </div>
+        <!-- GALERI FOTO (2 gambar, bisa digeser, bisa diganti dari galeri HP) -->
+        <div class="gallery-container" id="galleryContainer">
+            <div class="gallery-slider" id="gallerySlider">
+                <div class="gallery-item" id="galleryItem1">
+                    <img id="galleryImg1" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='%233b82f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='16' dy='.3em'%3EGambar 1%3C/text%3E%3C/svg%3E" alt="Gambar 1">
+                    <div class="gallery-overlay" onclick="changeGalleryImage(1)">🖼️ Ganti Gambar</div>
+                </div>
+                <div class="gallery-item" id="galleryItem2">
+                    <img id="galleryImg2" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='%2322c55e'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='16' dy='.3em'%3EGambar 2%3C/text%3E%3C/svg%3E" alt="Gambar 2">
+                    <div class="gallery-overlay" onclick="changeGalleryImage(2)">🖼️ Ganti Gambar</div>
+                </div>
+            </div>
+            <button class="gallery-btn gallery-btn-left" onclick="slideGallery(-1)">‹</button>
+            <button class="gallery-btn gallery-btn-right" onclick="slideGallery(1)">›</button>
+        </div>
+        <button class="menu-btn" id="menuBtn">☰</button>
+    </div>
+    <div id="mainView"></div>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar-menu" id="sidebar">
+    <button id="lightModeBtn">☀️ Mode Terang</button>
+    <button id="darkModeBtn">🌙 Mode Gelap</button>
+    <button id="backToMenuBtn">💬 Kembali ke Daftar Game</button>
+</div>
+
+<script>
+    (function() {
+        const appView = document.getElementById('mainView');
+        
+        // ========== GALERI FOTO (2 gambar, bisa digeser, bisa diganti dari galeri HP) ==========
+        window.changeGalleryImage = function(imgNumber) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        const imgElement = document.getElementById(`galleryImg${imgNumber}`);
+                        if (imgElement) imgElement.src = ev.target.result;
+                        localStorage.setItem(`kazz_gallery_img${imgNumber}`, ev.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        };
+        
+        function loadGalleryImages() {
+            for (let i = 1; i <= 2; i++) {
+                const saved = localStorage.getItem(`kazz_gallery_img${i}`);
+                if (saved) {
+                    const imgElement = document.getElementById(`galleryImg${i}`);
+                    if (imgElement) imgElement.src = saved;
+                }
+            }
+        }
+        
+        window.slideGallery = function(direction) {
+            const slider = document.getElementById('gallerySlider');
+            if (slider) {
+                const scrollAmount = slider.clientWidth;
+                slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+            }
+        };
+        
+        // ========== DAFTAR GAME ==========
+        const singlePlayerGames = [
+            { id: 'chess', name: '♟️ CATUR (vs AI)', icon: '♟️' },
+            { id: 'math', name: '🧮 HITUNG-HITUNGAN', icon: '🧮' },
+            { id: 'memory', name: '🍎 TEBAK BUAH (Memory)', icon: '🍎' },
+            { id: 'guess', name: '🔢 TEBAK ANGKA', icon: '🔢' },
+            { id: 'word', name: '🔤 SUSUN KATA', icon: '🔤' },
+            { id: 'maze', name: '🧭 LABIRIN 2D', icon: '🧭' },
+            { id: 'timerGame', name: '⏱️ HITUNG TIMER', icon: '⏱️' },
+            { id: 'multGame', name: '✖️ PERKALIAN CEPAT', icon: '✖️' },
+            { id: 'flagGame', name: '🏳️ TEBAK NEGARA', icon: '🏳️' },
+            { id: 'capitalGame', name: '🏙️ TEBAK IBUKOTA', icon: '🏙️' },
+            { id: 'flappy', name: '🐦 FLAPPY BIRD', icon: '🐦' },
+            { id: 'puzzle', name: '🧩 FAJEL PUZZLE', icon: '🧩' },
+            { id: 'colorGame', name: '🎨 TEBAK WARNA', icon: '🎨' }
+        ];
+        
+        const twoPlayerGames = [
+            { id: 'mathDuel', name: '⚡ MATH DUEL (2P)', icon: '⚡' }
+        ];
+        
+        // ========== CATUR (VS AI) ==========
+        let chessBoard = [
+            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        ];
+        let chessTurn = 'white', chessGameOver = false, chessWinner = null, chessSelectedRow = null, chessSelectedCol = null, chessValidMoves = [], chessVsAI = true;
+        
+        function getPieceSymbol(p) {
+            if (p === 'r') return '♜'; if (p === 'n') return '♞'; if (p === 'b') return '♝';
+            if (p === 'q') return '♛'; if (p === 'k') return '♚'; if (p === 'p') return '♟';
+            if (p === 'R') return '♖'; if (p === 'N') return '♘'; if (p === 'B') return '♗';
+            if (p === 'Q') return '♕'; if (p === 'K') return '♔'; if (p === 'P') return '♙';
+            return '';
+        }
+        
+        function isValidMove(piece, fromRow, fromCol, toRow, toCol, board) {
+            const target = board[toRow][toCol];
+            if (target && ((chessTurn === 'white' && target === target.toUpperCase()) || (chessTurn === 'black' && target !== target.toUpperCase()))) return false;
+            const dr = Math.abs(toRow - fromRow);
+            const dc = Math.abs(toCol - fromCol);
+            const pieceLower = piece.toLowerCase();
+            if (pieceLower === 'p') {
+                const dir = piece === 'P' ? -1 : 1;
+                if (fromCol === toCol && !target && toRow === fromRow + dir) return true;
+                if (fromCol === toCol && !target && toRow === fromRow + 2 * dir && fromRow === (piece === 'P' ? 6 : 1)) return true;
+                if (dr === 1 && dc === 1 && target && ((piece === 'P' && target !== target.toUpperCase()) || (piece === 'p' && target === target.toUpperCase()))) return true;
+                return false;
+            }
+            if (pieceLower === 'r') return (fromRow === toRow || fromCol === toCol) && isClearPath(fromRow, fromCol, toRow, toCol, board);
+            if (pieceLower === 'n') return (dr === 2 && dc === 1) || (dr === 1 && dc === 2);
+            if (pieceLower === 'b') return (dr === dc) && isClearPath(fromRow, fromCol, toRow, toCol, board);
+            if (pieceLower === 'q') return (fromRow === toRow || fromCol === toCol || dr === dc) && isClearPath(fromRow, fromCol, toRow, toCol, board);
+            if (pieceLower === 'k') return dr <= 1 && dc <= 1;
+            return false;
+        }
+        
+        function isClearPath(r1, c1, r2, c2, board) {
+            let dr = r2 === r1 ? 0 : (r2 > r1 ? 1 : -1);
+            let dc = c2 === c1 ? 0 : (c2 > c1 ? 1 : -1);
+            let r = r1 + dr, c = c1 + dc;
+            while (r !== r2 || c !== c2) {
+                if (board[r][c] !== '') return false;
+                r += dr; c += dc;
+            }
+            return true;
+        }
+        
+        function isCheck(board, color) {
+            let kingPos = null;
+            for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
+                let p = board[i][j];
+                if (p && ((color === 'white' && p === 'K') || (color === 'black' && p === 'k'))) kingPos = { row: i, col: j };
+            }
+            if (!kingPos) return false;
+            for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
+                let p = board[i][j];
+                if (p && ((color === 'white' && p !== p.toUpperCase()) || (color === 'black' && p === p.toUpperCase()))) {
+                    if (isValidMove(p, i, j, kingPos.row, kingPos.col, board)) return true;
+                }
+            }
+            return false;
+        }
+        
+        function getAllValidMoves(board, color) {
+            let moves = [];
+            for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
+                let p = board[i][j];
+                if (p && ((color === 'white' && p === p.toUpperCase()) || (color === 'black' && p !== p.toUpperCase()))) {
+                    for (let ti = 0; ti < 8; ti++) for (let tj = 0; tj < 8; tj++) {
+                        if (isValidMove(p, i, j, ti, tj, board)) {
+                            let newBoard = copyBoard(board);
+                            newBoard[ti][tj] = newBoard[i][j];
+                            newBoard[i][j] = '';
+                            if (!isCheck(newBoard, color)) moves.push({ from: { row: i, col: j }, to: { row: ti, col: tj } });
+                        }
+                    }
+                }
+            }
+            return moves;
+        }
+        
+        function isCheckmate(board, color) { return getAllValidMoves(board, color).length === 0 && isCheck(board, color); }
+        function copyBoard(board) { return board.map(row => [...row]); }
+        
+        function aiMove() {
+            if (chessGameOver || chessTurn !== 'black') return;
+            let moves = getAllValidMoves(chessBoard, 'black');
+            if (moves.length === 0) {
+                if (isCheck(chessBoard, 'black')) { chessGameOver = true; chessWinner = 'Putih'; renderChessGame(); }
+                else { chessGameOver = true; chessWinner = 'Seri'; renderChessGame(); }
+                return;
+            }
+            let randomMove = moves[Math.floor(Math.random() * moves.length)];
+            let piece = chessBoard[randomMove.from.row][randomMove.from.col];
+            chessBoard[randomMove.to.row][randomMove.to.col] = piece;
+            chessBoard[randomMove.from.row][randomMove.from.col] = '';
+            chessTurn = 'white';
+            if (isCheckmate(chessBoard, 'white')) { chessGameOver = true; chessWinner = 'Hitam'; }
+            renderChessGame();
+        }
+        
+        function getValidMovesForPiece(row, col, board) {
+            let piece = board[row][col];
+            if (!piece) return [];
+            let moves = [];
+            for (let ti = 0; ti < 8; ti++) for (let tj = 0; tj < 8; tj++) {
+                if (isValidMove(piece, row, col, ti, tj, board)) {
+                    let newBoard = copyBoard(board);
+                    newBoard[ti][tj] = newBoard[row][col];
+                    newBoard[row][col] = '';
+                    if (!isCheck(newBoard, chessTurn)) moves.push({ row: ti, col: tj });
+                }
+            }
+            return moves;
+        }
+        
+        function selectChessPiece(row, col) {
+            if (chessGameOver) return;
+            let piece = chessBoard[row][col];
+            if (piece && ((chessTurn === 'white' && piece === piece.toUpperCase()) || (chessTurn === 'black' && piece !== piece.toUpperCase()))) {
+                chessSelectedRow = row; chessSelectedCol = col;
+                chessValidMoves = getValidMovesForPiece(row, col, chessBoard);
+                renderChessGame();
+            } else { chessSelectedRow = null; chessSelectedCol = null; chessValidMoves = []; renderChessGame(); }
+        }
+        
+        function moveChessPiece(toRow, toCol) {
+            if (chessGameOver) return;
+            if (chessSelectedRow === null || chessSelectedCol === null) return;
+            let isValid = chessValidMoves.some(m => m.row === toRow && m.col === toCol);
+            if (!isValid) { chessSelectedRow = null; chessSelectedCol = null; chessValidMoves = []; renderChessGame(); return; }
+            let piece = chessBoard[chessSelectedRow][chessSelectedCol];
+            chessBoard[toRow][toCol] = piece;
+            chessBoard[chessSelectedRow][chessSelectedCol] = '';
+            chessSelectedRow = null; chessSelectedCol = null; chessValidMoves = [];
+            chessTurn = 'black';
+            if (isCheckmate(chessBoard, 'black')) { chessGameOver = true; chessWinner = 'Putih'; renderChessGame(); return; }
+            renderChessGame();
+            if (!chessGameOver && chessTurn === 'black' && chessVsAI) setTimeout(() => aiMove(), 300);
+        }
+        
+        function renderChessGame() {
+            let html = `<div class="game-container">
+                <div class="game-title">♟️ CATUR (${chessVsAI ? 'vs AI' : '2 Player'})</div>
+                <div class="chess-board" id="chessBoardContainer"></div>
+                <div class="game-status" id="chessStatus">${chessGameOver ? (chessWinner ? `🏆 ${chessWinner} MENANG! 🏆` : 'Game Over') : `Giliran: ${chessTurn === 'white' ? 'Putih (Kamu)' : 'Hitam (AI)'}`}</div>
+                <button class="btn-primary" id="chessResetBtn">Reset Game</button>
+                <button class="btn-secondary" id="chessBackBtn">Kembali</button>
+            </div>`;
+            appView.innerHTML = html;
+            const boardContainer = document.getElementById('chessBoardContainer');
+            if (!boardContainer) return;
+            for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
+                const cell = document.createElement('div');
+                cell.className = `chess-cell ${(i + j) % 2 === 0 ? 'light' : 'dark'}`;
+                if (chessSelectedRow === i && chessSelectedCol === j) cell.classList.add('selected');
+                if (chessValidMoves.some(m => m.row === i && m.col === j)) cell.classList.add('valid-move');
+                cell.textContent = getPieceSymbol(chessBoard[i][j]);
+                cell.onclick = (function(r, c) { return function() { if (chessSelectedRow !== null && (chessSelectedRow !== r || chessSelectedCol !== c)) moveChessPiece(r, c); else selectChessPiece(r, c); }; })(i, j);
+                boardContainer.appendChild(cell);
+            }
+            document.getElementById('chessResetBtn')?.addEventListener('click', () => { location.reload(); });
+            document.getElementById('chessBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function startChess(mode) {
+            chessVsAI = (mode === 'ai');
+            chessBoard = [
+                ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+                ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+            ];
+            chessTurn = 'white'; chessGameOver = false; chessWinner = null; chessSelectedRow = null; chessSelectedCol = null; chessValidMoves = [];
+            renderChessGame();
+        }
+        
+        // ========== MEMORY GAME (TEBAK BUAH) ==========
+        function renderMemory() {
+            let memCards = [], memFlip = [], memMatch = [], memLock = false, memTurn = 0, memScore = [0, 0];
+            const fruits = ['🍎', '🍎', '🍌', '🍌', '🍒', '🍒', '🍉', '🍉', '🍊', '🍊', '🍓', '🍓', '🥝', '🥝', '🍑', '🍑', '🍋', '🍋', '🍈', '🍈'];
+            function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+            function init() {
+                memCards = shuffle([...fruits]); memFlip = Array(20).fill(false); memMatch = Array(20).fill(false); memLock = false; memTurn = 0; memScore = [0, 0];
+                render();
+            }
+            function render() {
+                const g = document.getElementById('memoryGridInner');
+                if (!g) return;
+                g.innerHTML = '';
+                for (let i = 0; i < 20; i++) {
+                    const c = document.createElement('div');
+                    c.className = `memory-card ${memMatch[i] ? 'matched' : (memFlip[i] ? 'flipped' : '')}`;
+                    c.textContent = (memFlip[i] || memMatch[i]) ? memCards[i] : '?';
+                    c.onclick = () => click(i);
+                    g.appendChild(c);
+                }
+                document.getElementById('memoryStatus').innerText = `Giliran P${memTurn + 1} | Skor: ${memScore[0]} - ${memScore[1]}`;
+            }
+            function click(i) {
+                if (memLock || memMatch[i] || memFlip[i]) return;
+                memFlip[i] = true;
+                let open = memFlip.reduce((a, v, idx) => v && !memMatch[idx] ? [...a, idx] : a, []);
+                if (open.length === 2) {
+                    memLock = true;
+                    let i1 = open[0], i2 = open[1];
+                    if (memCards[i1] === memCards[i2]) {
+                        memMatch[i1] = memMatch[i2] = true;
+                        memScore[memTurn]++;
+                        memFlip[i1] = memFlip[i2] = false;
+                        if (memScore[0] + memScore[1] === 10) alert(`Pemenang: P${memScore[0] > memScore[1] ? 1 : 2}`);
+                        memLock = false;
+                        render();
+                    } else {
+                        setTimeout(() => {
+                            memFlip[i1] = memFlip[i2] = false;
+                            memLock = false;
+                            memTurn = 1 - memTurn;
+                            render();
+                        }, 800);
+                    }
+                    render();
+                } else render();
+            }
+            let html = `<div class="game-container">
+                <div class="game-title">🍎 TEBAK BUAH (Memory)</div>
+                <div class="memory-grid" id="memoryGridInner"></div>
+                <div class="game-status" id="memoryStatus"></div>
+                <button class="btn-primary" id="memoryResetBtn">Reset</button>
+                <button class="btn-secondary" id="memoryBackBtn">Kembali</button>
+            </div>`;
+            appView.innerHTML = html;
+            init();
+            document.getElementById('memoryResetBtn')?.addEventListener('click', init);
+            document.getElementById('memoryBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        // ========== GAME LAINNYA (TIDAK DIUBAH) ==========
+        function renderMath() {
+            let html = `<div class="game-container"><div class="game-title">🧮 HITUNG-HITUNGAN</div><div class="game-status" id="mathQuestion">5 + 3 = ?</div><input type="number" id="mathInput" class="number-input"><div class="btn-group"><button class="btn-primary" id="mathCheckBtn">Cek</button><button class="btn-secondary" id="mathResetBtn">Reset</button></div><div class="game-status" id="mathStatus">Skor: 0</div><button class="btn-secondary" id="mathBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            let score = 0, q = { text: '5 + 3', ans: 8 };
+            function gen() { let a = Math.floor(Math.random() * 20) + 1, b = Math.floor(Math.random() * 20) + 1, op = ['+', '-', '*'][Math.floor(Math.random() * 3)], ans = op === '+' ? a + b : op === '-' ? a - b : a * b; q = { text: `${a} ${op} ${b}`, ans }; document.getElementById('mathQuestion').innerText = q.text; }
+            gen();
+            document.getElementById('mathCheckBtn')?.addEventListener('click', () => { let inp = document.getElementById('mathInput'); if (parseInt(inp.value) === q.ans) { score++; document.getElementById('mathStatus').innerText = `✅ Benar! Skor: ${score}`; gen(); inp.value = ''; } else document.getElementById('mathStatus').innerText = `❌ Salah! Skor: ${score}`; });
+            document.getElementById('mathResetBtn')?.addEventListener('click', () => { score = 0; gen(); document.getElementById('mathStatus').innerText = 'Skor:0'; });
+            document.getElementById('mathBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderGuess() {
+            let secret = Math.floor(Math.random() * 100) + 1, att = 0;
+            let html = `<div class="game-container"><div class="game-title">🔢 TEBAK ANGKA</div><input type="number" id="guessInput" class="number-input"><div class="btn-group"><button class="btn-primary" id="guessBtn">Tebak</button><button class="btn-secondary" id="guessResetBtn">Reset</button></div><div class="game-status" id="guessStatus">Tebak angka 1-100</div><button class="btn-secondary" id="guessBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            document.getElementById('guessBtn')?.addEventListener('click', () => { let inp = document.getElementById('guessInput'), g = parseInt(inp.value); if (isNaN(g)) return; att++; let msg = (g === secret) ? `🎉 Benar! ${secret} (${att} tebakan)` : (g < secret ? '📈 Terlalu kecil' : '📉 Terlalu besar'); document.getElementById('guessStatus').innerText = msg; if (g === secret) { secret = Math.floor(Math.random() * 100) + 1; att = 0; } inp.value = ''; });
+            document.getElementById('guessResetBtn')?.addEventListener('click', () => { secret = Math.floor(Math.random() * 100) + 1; att = 0; document.getElementById('guessStatus').innerText = 'Tebak angka 1-100'; });
+            document.getElementById('guessBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderWord() {
+            let kata = ["PINTAR", "SAHABAT", "CERDAS", "HEBAT", "JUARA"], curr = "PINTAR", skor = 0;
+            let html = `<div class="game-container"><div class="game-title">🔤 SUSUN KATA</div><div class="scramble-word" id="scrambledWord">NPTIAR</div><input type="text" id="wordInput" class="number-input"><div class="btn-group"><button class="btn-primary" id="wordCheckBtn">Jawab</button><button class="btn-secondary" id="wordResetBtn">Reset</button></div><div class="game-status" id="wordStatus">Skor: 0</div><button class="btn-secondary" id="wordBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            function acak() { curr = kata[Math.floor(Math.random() * kata.length)]; let acak = curr.split('').sort(() => Math.random() - 0.5).join(''); document.getElementById('scrambledWord').innerText = acak; }
+            acak();
+            document.getElementById('wordCheckBtn')?.addEventListener('click', () => { let inp = document.getElementById('wordInput'); if (inp.value.toUpperCase() === curr) { skor++; document.getElementById('wordStatus').innerText = `✅ Benar! Skor: ${skor}`; acak(); inp.value = ''; } else document.getElementById('wordStatus').innerText = `❌ Salah! Skor: ${skor}`; });
+            document.getElementById('wordResetBtn')?.addEventListener('click', () => { skor = 0; acak(); document.getElementById('wordStatus').innerText = 'Skor:0'; });
+            document.getElementById('wordBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderMaze() {
+            const mazeData = {
+                1: { map: ["███████████████", "█             █", "█ █████ █████ █", "█         █   █", "█ ███ ███ █ █ █", "█         █ █ █", "█ ███████ █ █ █", "█           █ █", "███████████████"], start: { x: 1, y: 1 }, finish: { x: 13, y: 7 } },
+                2: { map: ["███████████████", "█       █     █", "█ ███ █ █ ███ █", "█   █     █   █", "███ █████ █ ███", "█         █   █", "█ ███ █████ █ █", "█           █ █", "███████████████"], start: { x: 1, y: 1 }, finish: { x: 13, y: 7 } },
+                3: { map: ["███████████████", "█     █       █", "█ ███ █ █████ █", "█ █       █   █", "█ █ █████ █ ███", "█ █     █     █", "█ ███ █ █ ███ █", "█         █   █", "███████████████"], start: { x: 1, y: 1 }, finish: { x: 13, y: 7 } }
+            };
+            let level = 1, curMap = null, player = null, finish = null;
+            function load(l) { if (l > 3) return alert("🏆 SELAMAT! Kamu menyelesaikan semua labirin!"); let d = mazeData[l]; curMap = d.map.map(r => r.split('')); player = { ...d.start }; finish = d.finish; level = l; renderGrid(); }
+            function renderGrid() { const cont = document.getElementById('mazeGridContainer'); if (!cont) return; let h = `<div class="maze-scroll"><div class="maze-grid">`; for (let row = 0; row < curMap.length; row++) { h += '<div class="maze-row">'; for (let col = 0; col < curMap[row].length; col++) { let cell = curMap[row][col], cls = 'maze-cell ', txt = ''; if (cell === '█') cls += 'maze-wall'; else if (player.x === col && player.y === row) { cls += 'maze-player'; txt = '⬜'; } else if (finish.x === col && finish.y === row) { cls += 'maze-finish'; txt = '🚪'; } else cls += 'maze-path'; h += `<div class="${cls}">${txt}</div>`; } h += '</div>'; } h += `</div></div>`; cont.innerHTML = h; document.getElementById('mazeLevelDisplay').innerHTML = `Level ${level}/3`; }
+            function move(dx, dy) { let nx = player.x + dx, ny = player.y + dy; if (ny >= 0 && ny < curMap.length && nx >= 0 && nx < curMap[0].length && curMap[ny][nx] !== '█') { player = { x: nx, y: ny }; renderGrid(); if (player.x === finish.x && player.y === finish.y) { if (level < 3) { alert(`🎉 Level ${level} selesai!`); load(level + 1); } else alert("🏆 SELAMAT! Kamu menyelesaikan semua labirin!"); } } }
+            let html = `<div class="game-container"><div class="game-title">🧭 LABIRIN 2D</div><div class="game-status" id="mazeLevelDisplay">Level 1/3</div><div id="mazeGridContainer"></div><div style="display:flex; gap:10px; justify-content:center; margin:15px 0;"><button class="btn-primary" id="mazeUp">⬆️</button><button class="btn-primary" id="mazeLeft">⬅️</button><button class="btn-primary" id="mazeDown">⬇️</button><button class="btn-primary" id="mazeRight">➡️</button></div><button class="btn-secondary" id="resetMazeBtn">Reset Level</button><button class="btn-secondary" id="mazeBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            load(1);
+            document.getElementById('mazeUp')?.addEventListener('click', () => move(0, -1));
+            document.getElementById('mazeDown')?.addEventListener('click', () => move(0, 1));
+            document.getElementById('mazeLeft')?.addEventListener('click', () => move(-1, 0));
+            document.getElementById('mazeRight')?.addEventListener('click', () => move(1, 0));
+            document.getElementById('resetMazeBtn')?.addEventListener('click', () => load(level));
+            document.getElementById('mazeBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderTimerGame() {
+            let html = `<div class="game-container"><div class="game-title">⏱️ HITUNG TIMER</div><div class="timer-text" id="timerGameTime">Waktu: 30s</div><div class="game-status" id="timerGameQuestion">5 + 3</div><div class="btn-group" id="timerButtons"></div><div class="game-status" id="timerGameScore">Skor: 0</div><div class="game-status" id="timerGameStatus"></div><button class="btn-primary" id="startTimerGameBtn">Mulai</button><button class="btn-secondary" id="resetTimerGameBtn">Reset</button><button class="btn-secondary" id="timerBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            let active = false, interval = null, time = 30, score = 0, curQ = { text: '5+3', ans: 8 };
+            function genQ() { let a = Math.floor(Math.random() * 12) + 1, b = Math.floor(Math.random() * 12) + 1, op = ['+', '-', '*'][Math.floor(Math.random() * 3)], ans = op === '+' ? a + b : op === '-' ? a - b : a * b; curQ = { text: `${a} ${op} ${b}`, ans }; document.getElementById('timerGameQuestion').innerText = curQ.text; }
+            function start() { if (interval) clearInterval(interval); active = true; time = 30; score = 0; genQ(); document.getElementById('timerGameScore').innerText = 'Skor: 0'; document.getElementById('timerGameTime').innerText = 'Waktu: 30s'; document.getElementById('timerGameStatus').innerHTML = ''; interval = setInterval(() => { if (!active) return; time--; document.getElementById('timerGameTime').innerText = `Waktu: ${time}s`; if (time <= 0) { clearInterval(interval); active = false; document.getElementById('timerGameStatus').innerHTML = `⏰ WAKTU HABIS! Skor: ${score}`; } }, 1000); }
+            function answer(v) { if (!active) return; if (v === curQ.ans) { score++; document.getElementById('timerGameScore').innerText = `Skor: ${score}`; genQ(); } else { document.getElementById('timerGameStatus').innerHTML = `❌ Salah! Jawaban ${curQ.ans}. -1 poin`; score = Math.max(0, score - 1); document.getElementById('timerGameScore').innerText = `Skor: ${score}`; genQ(); } }
+            const btnCont = document.getElementById('timerButtons'); for (let i = 0; i <= 9; i++) { let b = document.createElement('button'); b.className = 'btn-primary'; b.innerText = i; b.onclick = () => answer(i); btnCont.appendChild(b); }
+            document.getElementById('startTimerGameBtn')?.addEventListener('click', start);
+            document.getElementById('resetTimerGameBtn')?.addEventListener('click', () => { if (interval) clearInterval(interval); active = false; time = 30; score = 0; document.getElementById('timerGameScore').innerText = 'Skor: 0'; document.getElementById('timerGameTime').innerText = 'Waktu: 30s'; document.getElementById('timerGameStatus').innerHTML = ''; });
+            document.getElementById('timerBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderPerkalianCepat() {
+            let html = `<div class="game-container"><div class="game-title">✖️ PERKALIAN CEPAT</div><div class="game-status" id="multQuestion">3 x 4 = ?</div><input type="number" id="multInput" class="number-input"><div class="btn-group"><button class="btn-primary" id="multCheckBtn">Cek</button><button class="btn-secondary" id="multResetBtn">Reset</button></div><div class="game-status" id="multStatus">Skor: 0</div><button class="btn-secondary" id="multBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            let score = 0, cur = { a: 3, b: 4, ans: 12 };
+            function gen() { let a = Math.floor(Math.random() * 10) + 1, b = Math.floor(Math.random() * 10) + 1; cur = { a, b, ans: a * b }; document.getElementById('multQuestion').innerText = `${a} x ${b} = ?`; }
+            gen();
+            document.getElementById('multCheckBtn')?.addEventListener('click', () => { let inp = document.getElementById('multInput'); if (parseInt(inp.value) === cur.ans) { score++; document.getElementById('multStatus').innerText = `✅ Benar! Skor: ${score}`; gen(); inp.value = ''; } else document.getElementById('multStatus').innerText = `❌ Salah! Skor: ${score}`; });
+            document.getElementById('multResetBtn')?.addEventListener('click', () => { score = 0; gen(); document.getElementById('multStatus').innerText = 'Skor:0'; });
+            document.getElementById('multBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderTebakNegara() {
+            let flags = [{ name: "Indonesia", img: "https://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_Indonesia.svg", opt: ["Indonesia", "Malaysia", "Singapura", "Filipina"] }, { name: "Jepang", img: "https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg", opt: ["Jepang", "China", "Korea", "Vietnam"] }, { name: "Amerika", img: "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg", opt: ["Amerika", "Inggris", "Kanada", "Australia"] }, { name: "Inggris", img: "https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg", opt: ["Inggris", "Skotlandia", "Irlandia", "Prancis"] }, { name: "Perancis", img: "https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg", opt: ["Perancis", "Jerman", "Italia", "Spanyol"] }, { name: "Jerman", img: "https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg", opt: ["Jerman", "Belanda", "Austria", "Swiss"] }, { name: "Brasil", img: "https://upload.wikimedia.org/wikipedia/en/0/05/Flag_of_Brazil.svg", opt: ["Brasil", "Argentina", "Uruguay", "Chili"] }];
+            let idx = 0, score = 0;
+            function render() { if (idx >= flags.length) { document.getElementById('flagContainer').innerHTML = `<div class="game-title">🏆 SELAMAT! Skor: ${score}/${flags.length}</div><button class="btn-primary" onclick="resetFlag()">Main Lagi</button>`; return; } let f = flags[idx]; let html = `<div class="game-container"><div class="game-title">🏳️ TEBAK NEGARA</div><img src="${f.img}" class="flag-img"><div class="btn-group">${f.opt.map((o, i) => `<button class="btn-primary" onclick="answerFlag(${i})">${o}</button>`).join('')}</div><div class="game-status">Skor: ${score}/${flags.length}</div><button class="btn-secondary" onclick="resetFlag()">Reset</button><button class="btn-secondary" id="flagBackBtn">Kembali</button></div>`; document.getElementById('flagContainer').innerHTML = html; document.getElementById('flagBackBtn')?.addEventListener('click', () => showMenu()); }
+            window.answerFlag = function(c) { if (flags[idx].opt[c] === flags[idx].name) score++; idx++; render(); };
+            window.resetFlag = function() { idx = 0; score = 0; render(); };
+            let html = `<div id="flagContainer"></div>`; appView.innerHTML = html; render();
+        }
+        
+        function renderTebakIbukota() {
+            let capitals = [{ country: "Indonesia", capital: "Jakarta" }, { country: "Jepang", capital: "Tokyo" }, { country: "Amerika", capital: "Washington DC" }, { country: "Inggris", capital: "London" }, { country: "Perancis", capital: "Paris" }, { country: "Jerman", capital: "Berlin" }, { country: "Brasil", capital: "Brasilia" }];
+            let idx = 0, score = 0;
+            function render() { if (idx >= capitals.length) { document.getElementById('capitalContainer').innerHTML = `<div class="game-title">🏆 SELAMAT! Skor: ${score}/${capitals.length}</div><button class="btn-primary" onclick="resetCapital()">Main Lagi</button>`; return; } let c = capitals[idx]; let html = `<div class="game-container"><div class="game-title">🏙️ TEBAK IBUKOTA</div><div class="game-status">Negara: ${c.country}</div><input type="text" id="capitalInput" class="number-input"><div class="btn-group"><button class="btn-primary" id="capitalSubmitBtn">Jawab</button><button class="btn-secondary" id="capitalSkipBtn">Lewati</button></div><div class="game-status">Skor: ${score}/${capitals.length}</div><button class="btn-secondary" onclick="resetCapital()">Reset</button><button class="btn-secondary" id="capitalBackBtn">Kembali</button></div>`; document.getElementById('capitalContainer').innerHTML = html; document.getElementById('capitalSubmitBtn')?.addEventListener('click', () => { let inp = document.getElementById('capitalInput'); if (inp.value.trim().toLowerCase() === c.capital.toLowerCase()) score++; idx++; render(); }); document.getElementById('capitalSkipBtn')?.addEventListener('click', () => { idx++; render(); }); document.getElementById('capitalBackBtn')?.addEventListener('click', () => showMenu()); }
+            window.resetCapital = function() { idx = 0; score = 0; render(); };
+            let html = `<div id="capitalContainer"></div>`; appView.innerHTML = html; render();
+        }
+        
+        function renderFlappy() {
+            let html = `<div class="game-container"><div class="game-title">🐦 FLAPPY BIRD</div><canvas id="flappyCanvas" width="300" height="400" class="flappy-canvas"></canvas><div class="game-status" id="flappyScore">Skor: 0</div><button class="btn-primary" id="flappyStartBtn">Mulai</button><button class="btn-secondary" id="flappyBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            let canvas = document.getElementById('flappyCanvas'), ctx = canvas.getContext('2d'), gameRunning = false, bird = { x: 50, y: 200, vy: 0, gravity: 0.2, jump: -4 }, pipes = [], score = 0, frame = 0, interval = null;
+            function draw() { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = '#facc15'; ctx.fillRect(bird.x, bird.y, 25, 25); ctx.fillStyle = '#22c55e'; for (let pipe of pipes) { ctx.fillRect(pipe.x, 0, 40, pipe.top); ctx.fillRect(pipe.x, pipe.top + 120, 40, canvas.height - (pipe.top + 120)); } ctx.fillStyle = 'white'; ctx.font = '20px sans-serif'; ctx.fillText(`Skor: ${score}`, 10, 30); }
+            function update() { if (!gameRunning) return; bird.vy += bird.gravity; bird.y += bird.vy; if (bird.y + 25 > canvas.height || bird.y < 0) gameOver(); for (let i = 0; i < pipes.length; i++) { pipes[i].x -= 2; if (pipes[i].x + 40 < 0) { pipes.splice(i, 1); i--; score++; document.getElementById('flappyScore').innerText = `Skor: ${score}`; } if (bird.x < pipes[i].x + 40 && bird.x + 25 > pipes[i].x) { if (bird.y < pipes[i].top || bird.y + 25 > pipes[i].top + 120) gameOver(); } } if (frame % 100 === 0) { let top = Math.random() * (canvas.height - 200) + 50; pipes.push({ x: canvas.width, top: top }); } frame++; draw(); }
+            function gameOver() { if (interval) clearInterval(interval); gameRunning = false; alert(`Game Over! Skor akhir: ${score}`); resetGame(); }
+            function resetGame() { bird.y = 200; bird.vy = 0; pipes = []; score = 0; frame = 0; document.getElementById('flappyScore').innerText = 'Skor: 0'; draw(); if (interval) clearInterval(interval); gameRunning = false; }
+            document.getElementById('flappyStartBtn')?.addEventListener('click', () => { resetGame(); gameRunning = true; if (interval) clearInterval(interval); interval = setInterval(update, 20); });
+            canvas.addEventListener('click', () => { if (gameRunning) bird.vy = bird.jump; });
+            document.getElementById('flappyBackBtn')?.addEventListener('click', () => { if (interval) clearInterval(interval); showMenu(); });
+            draw();
+        }
+        
+        function renderPuzzle() {
+            let html = `<div class="game-container"><div class="game-title">🧩 FAJEL PUZZLE</div><div id="puzzleContainer" style="display: flex; justify-content: center;"></div><button class="btn-primary" id="puzzleResetBtn">Reset</button><button class="btn-secondary" id="puzzleBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            let size = 3, tiles = [], emptyPos = { row: size - 1, col: size - 1 };
+            function initTiles() { tiles = []; for (let i = 0; i < size; i++) { tiles[i] = []; for (let j = 0; j < size; j++) { tiles[i][j] = (i * size + j + 1) % (size * size); } } tiles[size - 1][size - 1] = 0; emptyPos = { row: size - 1, col: size - 1 }; for (let i = 0; i < 200; i++) { let neighbors = []; if (emptyPos.row > 0) neighbors.push({ row: emptyPos.row - 1, col: emptyPos.col }); if (emptyPos.row < size - 1) neighbors.push({ row: emptyPos.row + 1, col: emptyPos.col }); if (emptyPos.col > 0) neighbors.push({ row: emptyPos.row, col: emptyPos.col - 1 }); if (emptyPos.col < size - 1) neighbors.push({ row: emptyPos.row, col: emptyPos.col + 1 }); let rand = neighbors[Math.floor(Math.random() * neighbors.length)]; tiles[emptyPos.row][emptyPos.col] = tiles[rand.row][rand.col]; tiles[rand.row][rand.col] = 0; emptyPos = rand; } renderPuzzleGrid(); }
+            function renderPuzzleGrid() { const container = document.getElementById('puzzleContainer'); if (!container) return; container.innerHTML = ''; let grid = document.createElement('div'); grid.className = 'puzzle-grid'; grid.style.gridTemplateColumns = `repeat(${size}, 70px)`; for (let i = 0; i < size; i++) for (let j = 0; j < size; j++) { let cell = document.createElement('div'); cell.className = 'puzzle-cell'; cell.style.width = '70px'; cell.style.height = '70px'; cell.style.display = 'flex'; cell.style.alignItems = 'center'; cell.style.justifyContent = 'center'; cell.style.fontSize = '1.5rem'; if (tiles[i][j] !== 0) { cell.textContent = tiles[i][j]; cell.style.background = '#3b82f6'; } else { cell.textContent = ''; cell.style.background = '#1e293b'; } cell.onclick = (function(r, c) { return function() { if ((Math.abs(r - emptyPos.row) + Math.abs(c - emptyPos.col)) === 1) { tiles[emptyPos.row][emptyPos.col] = tiles[r][c]; tiles[r][c] = 0; emptyPos = { row: r, col: c }; renderPuzzleGrid(); let win = true; for (let i = 0; i < size; i++) for (let j = 0; j < size; j++) { if (i === size - 1 && j === size - 1) { if (tiles[i][j] !== 0) win = false; } else { if (tiles[i][j] !== i * size + j + 1) win = false; } } if (win) alert("🎉 SELAMAT! Puzzle tersusun dengan benar!"); } }; })(i, j); grid.appendChild(cell); } container.appendChild(grid); }
+            initTiles();
+            document.getElementById('puzzleResetBtn')?.addEventListener('click', initTiles);
+            document.getElementById('puzzleBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderColorGame() {
+            let colors = [{ name: "Merah", code: "#ff0000" }, { name: "Biru", code: "#0000ff" }, { name: "Hijau", code: "#00ff00" }, { name: "Kuning", code: "#ffff00" }, { name: "Ungu", code: "#800080" }, { name: "Orange", code: "#ffa500" }, { name: "Pink", code: "#ffc0cb" }, { name: "Coklat", code: "#8b4513" }];
+            let currentColor = null, score = 0;
+            function newQuestion() { currentColor = colors[Math.floor(Math.random() * colors.length)]; document.getElementById('colorBox').style.backgroundColor = currentColor.code; let options = [currentColor.name]; while (options.length < 4) { let rand = colors[Math.floor(Math.random() * colors.length)].name; if (!options.includes(rand)) options.push(rand); } for (let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [options[i], options[j]] = [options[j], options[i]]; } const btnContainer = document.getElementById('colorOptions'); btnContainer.innerHTML = ''; options.forEach(opt => { let btn = document.createElement('button'); btn.className = 'btn-primary'; btn.innerText = opt; btn.onclick = () => { if (opt === currentColor.name) { score++; document.getElementById('colorScore').innerText = `Skor: ${score}`; newQuestion(); } else { alert(`Salah! Warna yang benar adalah ${currentColor.name}`); score = Math.max(0, score - 1); document.getElementById('colorScore').innerText = `Skor: ${score}`; newQuestion(); } }; btnContainer.appendChild(btn); }); }
+            let html = `<div class="game-container"><div class="game-title">🎨 TEBAK WARNA</div><div id="colorBox" class="color-box"></div><div class="btn-group" id="colorOptions"></div><div class="game-status" id="colorScore">Skor: 0</div><button class="btn-secondary" id="colorResetBtn">Reset</button><button class="btn-secondary" id="colorBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            score = 0; document.getElementById('colorScore').innerText = 'Skor: 0'; newQuestion();
+            document.getElementById('colorResetBtn')?.addEventListener('click', () => { score = 0; document.getElementById('colorScore').innerText = 'Skor: 0'; newQuestion(); });
+            document.getElementById('colorBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        function renderMathDuel() {
+            let html = `<div class="game-container"><div class="game-title">⚡ MATH DUEL (2 Player)</div><div class="game-status" id="duelQuestion">5 + 3</div><div class="btn-group" id="duelButtons"></div><div class="game-status" id="duelStatus">Skor: P1:0 - P2:0</div><div class="game-status" id="duelTurn">Giliran: Pemain 1</div><button class="btn-secondary" id="duelResetBtn">Reset</button><button class="btn-secondary" id="duelBackBtn">Kembali</button></div>`;
+            appView.innerHTML = html;
+            let s = [0, 0], turn = 0, q = { text: '5+3', ans: 8 }, canAnswer = true;
+            function gen() { let a = Math.floor(Math.random() * 12) + 1, b = Math.floor(Math.random() * 12) + 1, op = ['+', '-', '*'][Math.floor(Math.random() * 3)], ans = op === '+' ? a + b : op === '-' ? a - b : a * b; q = { text: `${a} ${op} ${b}`, ans }; document.getElementById('duelQuestion').innerText = q.text; canAnswer = true; }
+            gen();
+            const btnContainer = document.getElementById('duelButtons'); for (let i = 0; i <= 9; i++) { let btn = document.createElement('button'); btn.className = 'btn-primary'; btn.innerText = i; btn.onclick = () => { if (!canAnswer) return; if (i === q.ans) { s[turn]++; document.getElementById('duelStatus').innerHTML = `Skor: P1:${s[0]} - P2:${s[1]}`; turn = 1 - turn; document.getElementById('duelTurn').innerHTML = `Giliran: Pemain ${turn + 1}`; gen(); } else { canAnswer = false; document.getElementById('duelStatus').innerHTML = `❌ Pemain ${turn + 1} salah! Jawaban ${q.ans}. Giliran pindah.`; turn = 1 - turn; document.getElementById('duelTurn').innerHTML = `Giliran: Pemain ${turn + 1}`; setTimeout(() => gen(), 1500); } }; btnContainer.appendChild(btn); }
+            document.getElementById('duelResetBtn')?.addEventListener('click', () => { s = [0, 0]; turn = 0; document.getElementById('duelStatus').innerHTML = 'Skor: P1:0 - P2:0'; document.getElementById('duelTurn').innerHTML = 'Giliran: Pemain 1'; gen(); canAnswer = true; });
+            document.getElementById('duelBackBtn')?.addEventListener('click', () => showMenu());
+        }
+        
+        // MENU UTAMA
+        window.chooseChessMode = function() {
+            let html = `<div class="game-container"><div class="game-title">♟️ PILIH MODE CATUR</div><div class="btn-group"><button class="btn-primary" id="chessVsAiBtn">VS AI (Komputer)</button><button class="btn-primary" id="chess2pBtn">2 PLAYER</button></div><button class="btn-secondary" id="chessBackMenuBtn">Kembali ke Menu</button></div>`;
+            appView.innerHTML = html;
+            document.getElementById('chessVsAiBtn')?.addEventListener('click', () => startChess('ai'));
+            document.getElementById('chess2pBtn')?.addEventListener('click', () => startChess('2p'));
+            document.getElementById('chessBackMenuBtn')?.addEventListener('click', () => showMenu());
+        };
+        
+        window.loadGame = function(gameId) {
+            if (gameId === 'chess') chooseChessMode();
+            else if (gameId === 'math') renderMath();
+            else if (gameId === 'memory') renderMemory();
+            else if (gameId === 'guess') renderGuess();
+            else if (gameId === 'word') renderWord();
+            else if (gameId === 'maze') renderMaze();
+            else if (gameId === 'timerGame') renderTimerGame();
+            else if (gameId === 'multGame') renderPerkalianCepat();
+            else if (gameId === 'flagGame') renderTebakNegara();
+            else if (gameId === 'capitalGame') renderTebakIbukota();
+            else if (gameId === 'flappy') renderFlappy();
+            else if (gameId === 'puzzle') renderPuzzle();
+            else if (gameId === 'colorGame') renderColorGame();
+            else if (gameId === 'mathDuel') renderMathDuel();
+        };
+        
+        function showMenu() {
+            let html = `<div class="category-title">🎮 1 PLAYER / VS AI</div><div class="game-list">`;
+            singlePlayerGames.forEach(g => {
+                if (g.id === 'chess') { html += `<div class="game-item" onclick="chooseChessMode()"><div class="game-name">${g.name}</div><div class="game-icon">${g.icon}</div></div>`; }
+                else { html += `<div class="game-item" onclick="window.loadGame('${g.id}')"><div class="game-name">${g.name}</div><div class="game-icon">${g.icon}</div></div>`; }
+            });
+            html += `</div><div class="category-title">👥 2 PLAYER</div><div class="game-list">`;
+            twoPlayerGames.forEach(g => { html += `<div class="game-item" onclick="window.loadGame('${g.id}')"><div class="game-name">${g.name}</div><div class="game-icon">${g.icon}</div></div>`; });
+            html += `</div>`;
+            appView.innerHTML = html;
+        }
+        
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none'; }
+        document.getElementById('menuBtn').onclick = toggleMenu;
+        document.getElementById('overlay').onclick = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').style.display = 'none'; };
+        document.getElementById('lightModeBtn').onclick = () => { document.body.classList.remove('dark'); document.body.classList.add('light'); toggleMenu(); };
+        document.getElementById('darkModeBtn').onclick = () => { document.body.classList.remove('light'); document.body.classList.add('dark'); toggleMenu(); };
+        document.getElementById('backToMenuBtn').onclick = () => { showMenu(); toggleMenu(); };
+        
+        loadGalleryImages();
+        showMenu();
+    })();
+</script>
+</body>
+</html>
